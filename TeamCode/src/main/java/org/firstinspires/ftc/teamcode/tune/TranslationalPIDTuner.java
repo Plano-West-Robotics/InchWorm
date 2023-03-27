@@ -6,7 +6,9 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.PIDController;
+import org.firstinspires.ftc.teamcode.inchworm.WormUtil;
+import org.firstinspires.ftc.teamcode.inchworm.InchWorm;
+import org.firstinspires.ftc.teamcode.inchworm.PIDController;
 
 @Autonomous(group="tune")
 public class TranslationalPIDTuner extends LinearOpMode {
@@ -22,7 +24,7 @@ public class TranslationalPIDTuner extends LinearOpMode {
         double Ki = 0;
         double Kd = 0;
         double scale = 0.15;
-        API api = new API(this);
+        WormUtil wormUtil = new WormUtil(this);
         InchWorm inchWorm = new InchWorm(this);
         PIDController controller = new PIDController(Kp, Ki, Kd, 0);
         FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -33,7 +35,7 @@ public class TranslationalPIDTuner extends LinearOpMode {
         boolean lastUp = false;
         boolean lastDown = false;
 
-        api.waitForStart();
+        wormUtil.waitForStart();
 
         InchWorm.Pose target = new InchWorm.Pose(0, 24, 0).toTicks();
         controller.setTarget(target.y);

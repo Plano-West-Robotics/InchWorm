@@ -4,8 +4,9 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.PIDController;
+import org.firstinspires.ftc.teamcode.inchworm.WormUtil;
+import org.firstinspires.ftc.teamcode.inchworm.InchWorm;
+import org.firstinspires.ftc.teamcode.inchworm.PIDController;
 
 @Autonomous(group="tune")
 public class TurnPIDTuner extends LinearOpMode {
@@ -21,7 +22,7 @@ public class TurnPIDTuner extends LinearOpMode {
         double Kd = 0;
         double scale = 0.15;
         double target = 90;
-        API api = new API(this);
+        WormUtil wormUtil = new WormUtil(this);
         InchWorm inchWorm = new InchWorm(this);
         PIDController controller = new PIDController(Kp, Ki, Kd, target);
         FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -32,7 +33,7 @@ public class TurnPIDTuner extends LinearOpMode {
         boolean lastUp = false;
         boolean lastDown = false;
 
-        api.waitForStart();
+        wormUtil.waitForStart();
 
         while (opModeIsActive()) {
             if (gamepad1.left_bumper && lastLeftBumper != gamepad1.left_bumper) {

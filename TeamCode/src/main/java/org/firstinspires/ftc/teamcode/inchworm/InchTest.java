@@ -7,10 +7,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 public class InchTest extends LinearOpMode {
     @Override
     public void runOpMode() {
-        API api = new API(this);
-        InchWorm inchWorm = new InchWorm2(this);
+        WormUtil wormUtil = new WormUtil(this);
+        InchWorm inchWorm = new InchWorm(this);
 
-        api.waitForStart();
+        wormUtil.waitForStart();
 
         inchWorm.moveTo(24, 0);
         inchWorm.moveTo(24, 24);

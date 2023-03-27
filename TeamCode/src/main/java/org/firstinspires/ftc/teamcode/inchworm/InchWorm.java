@@ -9,10 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.PIDController;
 
 import java.util.List;
 
@@ -291,8 +289,8 @@ public class InchWorm {
 
     public static class Pose {
         double x;
-        double y;
-        double theta = 0;
+        public double y;
+        public double theta = 0;
 
         public Pose(double X, double Y) {
             x = X;

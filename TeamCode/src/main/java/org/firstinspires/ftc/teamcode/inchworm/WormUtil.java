@@ -6,11 +6,11 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-public class API {
+public class WormUtil {
     LinearOpMode opMode;
     IMU imu;
 
-    public API(LinearOpMode opMode) {
+    public WormUtil(LinearOpMode opMode) {
         this.opMode = opMode;
         imu = opMode.hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
@@ -45,7 +45,7 @@ public class API {
     /**
      * Re-interprets current heading (AKA yaw) to be 0.
      * Make sure to call this function after turning.
-     * @see API#getHeading()
+     * @see WormUtil#getHeading()
      */
     public void reset() {
         imu.resetYaw();
@@ -55,7 +55,7 @@ public class API {
      * Get the current rotation around the Z-Axis (known as heading or yaw) since the last time reset() was called.
      * This value will be normalized to be within [-180, 180) <b>degrees, not radians</b>. It follows the right-hand-rule:
      * Positive values are <b>counter-clockwise</b> around the axis, negative values are <b>clockwise</b>.
-     * @see API#reset()
+     * @see WormUtil#reset()
      * @return the rotation since the last time reset() was called
      */
     public double getHeading() {
@@ -67,7 +67,7 @@ public class API {
      * You can provide an AngleUnit to get the result in either degrees or radians
      * This value will be normalized to be within [-180, 180) degrees (or [-π, π) radians). It follows the right-hand-rule:
      * Positive values are <b>counter-clockwise</b> around the axis, negative values are <b>clockwise</b>.
-     * @see API#reset()
+     * @see WormUtil#reset()
      * @param angleUnit The unit for the result to be in
      * @return the rotation since the last time reset() was called, in `angleUnit`s.
      */

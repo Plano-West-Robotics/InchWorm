@@ -7,10 +7,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 public class IMUReset extends LinearOpMode {
     @Override
     public void runOpMode() {
-        API api = new API(this);
+        WormUtil wormUtil = new WormUtil(this);
 
-        api.waitForStart();
+        wormUtil.waitForStart();
 
-        api.reset();
+        wormUtil.reset();
     }
 }
