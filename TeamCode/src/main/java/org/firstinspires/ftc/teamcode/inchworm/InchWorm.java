@@ -63,6 +63,8 @@ public class InchWorm {
      */
     private double speed = 1;
 
+    private Pose target = tracker.currentPos;
+
     public InchWorm(LinearOpMode mode) {
         opMode = mode;
         HardwareMap hardwareMap = opMode.hardwareMap;
@@ -108,34 +110,50 @@ public class InchWorm {
      * @param pose Position to move to. For now, must be in inches and radians.
      */
     public void moveTo(Pose pose) {
+        setTarget(pose);
+
+        while (!update()) {}
+
+        stop();
+    }
+
+    /** Set the target position
+     * @param newTarget New target position
+     */
+    public void setTarget(Pose newTarget) {
         // convert pose in inches to pose in ticks & normalize angle to [-π, π] radians
-        pose = pose.toTicks().normalizeAngle();
-        controllerX.setTarget(pose.x);
-        controllerY.setTarget(pose.y);
-        controllerTheta.setTarget(Math.toDegrees(pose.theta));
+        newTarget = newTarget.toTicks().normalizeAngle();
+        controllerX.setTarget(newTarget.x);
+        controllerY.setTarget(newTarget.y);
+        controllerTheta.setTarget(Math.toDegrees(newTarget.theta));
         controllerX.reset();
         controllerY.reset();
         controllerTheta.reset();
+
+        target = newTarget;
+    }
+
+    /**
+     * Update wheel powers and return whether we have reached the target or not
+     * @return Whether we have reached the target
+     */
+    public boolean update() {
         Pose current = tracker.currentPos.normalizeAngle();
+        opMode.telemetry.addLine(current.toDegrees().toString());
+        double angError = Math.toDegrees(angleDiff(target.theta, current.theta));
+        opMode.telemetry.addData("angError", angError);
+        Pose out = new Pose(controllerX.calculate(current.x), controllerY.calculate(current.y), controllerTheta.calculateWithError(angError));
 
-        while (isBusy(pose, current)) {
-            current = tracker.currentPos.normalizeAngle();
-            opMode.telemetry.addLine(current.toDegrees().toString());
-            double angError = Math.toDegrees(angleDiff(pose.theta, current.theta));
-            opMode.telemetry.addData("angError", angError);
-            Pose out = new Pose(controllerX.calculate(current.x), controllerY.calculate(current.y), controllerTheta.calculateWithError(angError));
+        out = out.rot(current.theta);
+        out = new Pose(out.x / MAX_VEL, out.y / MAX_VEL, out.theta / MAX_ANG_VEL);
+        opMode.telemetry.addLine(out.toString());
+        opMode.telemetry.update();
 
-            out = out.rot(current.theta);
-            out = new Pose(out.x / MAX_VEL, out.y / MAX_VEL, out.theta / MAX_ANG_VEL);
-            opMode.telemetry.addLine(out.toString());
-            opMode.telemetry.update();
+        double voltageCompensation = 12 / getBatteryVoltage();
+        moveWheels(out.x, out.y, out.theta, getSpeedMultiplier() * voltageCompensation);
+        tracker.update();
 
-            double voltageCompensation = 12 / getBatteryVoltage();
-            moveWheels(out.x, out.y, out.theta, getSpeedMultiplier() * voltageCompensation);
-            tracker.update();
-        }
-
-        stop();
+        return !isBusy(target, current);
     }
 
     /**
