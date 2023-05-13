@@ -22,8 +22,11 @@ public class TurnPIDTuner extends LinearOpMode {
         double Kd = 0;
         double scale = 0.15;
         double target = 90;
-        WormUtil wormUtil = new WormUtil(this);
-        InchWorm inchWorm = new InchWorm(this);
+        WormUtil wormUtil = new WormUtil(this, InchWorm.GLOBAL_ORIENTATION);
+        InchWorm inchWorm = new InchWorm(this,
+                InchWorm.GLOBAL_ORIENTATION,
+                InchWorm.POSE_ZERO);
+
         PIDController controller = new PIDController(Kp, Ki, Kd, target);
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = dashboard.getTelemetry();

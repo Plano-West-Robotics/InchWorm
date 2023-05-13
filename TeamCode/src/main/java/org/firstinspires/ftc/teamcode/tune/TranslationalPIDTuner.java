@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.tune;
 import android.annotation.SuppressLint;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -24,8 +25,11 @@ public class TranslationalPIDTuner extends LinearOpMode {
         double Ki = 0;
         double Kd = 0;
         double scale = 0.15;
-        WormUtil wormUtil = new WormUtil(this);
-        InchWorm inchWorm = new InchWorm(this);
+        WormUtil wormUtil = new WormUtil(this, InchWorm.GLOBAL_ORIENTATION);
+        InchWorm inchWorm = new InchWorm(this,
+                InchWorm.GLOBAL_ORIENTATION,
+                InchWorm.POSE_ZERO);
+
         PIDController controller = new PIDController(Kp, Ki, Kd, 0);
         FtcDashboard dashboard = FtcDashboard.getInstance();
         telemetry = dashboard.getTelemetry();

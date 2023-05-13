@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -18,6 +19,15 @@ import java.util.List;
  * InchWorm is a movement system aimed at making autonomous coding easy and effective.
  */
 public class InchWorm {
+    /** Default starting pose of (0, 0, 0) */
+    public static final Pose POSE_ZERO = new Pose(0, 0, 0);
+    /** Global constant for hub orientation. Use this unless you need to override the orientation for one specific opmode.  */
+    public static final RevHubOrientationOnRobot GLOBAL_ORIENTATION = new RevHubOrientationOnRobot(
+            // TODO: change these if they are not accurate
+            RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
+            RevHubOrientationOnRobot.UsbFacingDirection.LEFT);
+
+
     /**
      * Encoder ticks per motor revolution for your drive motors. You can find this information online.
      */
@@ -65,7 +75,7 @@ public class InchWorm {
 
     private Pose target = tracker.currentPos;
 
-    public InchWorm(LinearOpMode mode) {
+    public InchWorm(LinearOpMode mode, ImuOrientationOnRobot imuOrientationOnRobot, Pose startingPose) {
         opMode = mode;
         HardwareMap hardwareMap = opMode.hardwareMap;
 
@@ -75,11 +85,7 @@ public class InchWorm {
         br = hardwareMap.get(DcMotor.class, "rearRight");
 
         imu = hardwareMap.get(IMU.class, "imu");
-        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
-                // TODO: change these parameters if they are not accurate
-                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
-                RevHubOrientationOnRobot.UsbFacingDirection.LEFT
-        )));
+        imu.initialize(new IMU.Parameters(imuOrientationOnRobot));
         imu.resetYaw();
 
         // reset encoders to 0
@@ -103,6 +109,8 @@ public class InchWorm {
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
+
+        tracker.setPoseEstimate(startingPose);
     }
 
     /**
