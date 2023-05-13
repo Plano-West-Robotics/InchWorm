@@ -75,6 +75,12 @@ public class InchWorm {
 
     private Pose target = tracker.currentPos;
 
+    /**
+     * Initialize an InchWorm object. Sets up motors, encoders, IMU, etc.
+     * @param mode Current opMode. Used to print to telemetry and interface with hardware.
+     * @param imuOrientationOnRobot Orientation of the IMU on the robot. In most cases, use GLOBAL_ORIENTATION.
+     * @param startingPose Initial pose of the robot.
+     */
     public InchWorm(LinearOpMode mode, ImuOrientationOnRobot imuOrientationOnRobot, Pose startingPose) {
         opMode = mode;
         HardwareMap hardwareMap = opMode.hardwareMap;
@@ -358,6 +364,11 @@ public class InchWorm {
             return new Pose(rotX, rotY, this.theta);
         }
 
+        /**
+         * Add one pose to another.
+         * @param other Other pose to add
+         * @return A new pose that is the sum of `this` and `other`
+         */
         public Pose add(Pose other) {
             return new Pose(this.x + other.x, this.y + other.y, this.theta + other.theta);
         }
