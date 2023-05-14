@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.inchworm.WormUtil;
 import org.firstinspires.ftc.teamcode.inchworm.InchWorm;
 import org.firstinspires.ftc.teamcode.inchworm.PIDController;
+import org.firstinspires.ftc.teamcode.inchworm.units.Angle;
 
 @Autonomous(group="tune")
 public class TranslationalPIDTuner extends LinearOpMode {
@@ -41,7 +42,7 @@ public class TranslationalPIDTuner extends LinearOpMode {
 
         wormUtil.waitForStart();
 
-        InchWorm.Pose target = new InchWorm.Pose(0, 24, 0).toTicks();
+        InchWorm.Pose target = new InchWorm.Pose(0, 24, Angle.ZERO).toTicks();
         controller.setTarget(target.y);
 
         while (opModeIsActive()) {

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.inchworm;
 
+import static org.firstinspires.ftc.teamcode.inchworm.units.Angle.ZERO;
+
 import androidx.annotation.NonNull;
 
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -12,6 +14,7 @@ import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.inchworm.units.Angle;
 
 import java.util.List;
 
@@ -20,7 +23,7 @@ import java.util.List;
  */
 public class InchWorm {
     /** Default starting pose of (0, 0, 0) */
-    public static final Pose POSE_ZERO = new Pose(0, 0, 0);
+    public static final Pose POSE_ZERO = new Pose(0, 0, ZERO);
     /** Global constant for hub orientation. Use this unless you need to override the orientation for one specific opmode.  */
     public static final RevHubOrientationOnRobot GLOBAL_ORIENTATION = new RevHubOrientationOnRobot(
             // TODO: change these if they are not accurate
@@ -139,7 +142,7 @@ public class InchWorm {
         newTarget = newTarget.toTicks().normalizeAngle();
         controllerX.setTarget(newTarget.x);
         controllerY.setTarget(newTarget.y);
-        controllerTheta.setTarget(Math.toDegrees(newTarget.theta));
+        controllerTheta.setTarget(newTarget.theta.angleInDegrees());
         controllerX.reset();
         controllerY.reset();
         controllerTheta.reset();
@@ -153,40 +156,27 @@ public class InchWorm {
      */
     public boolean update() {
         Pose current = tracker.currentPos.normalizeAngle();
-        opMode.telemetry.addLine(current.toDegrees().toString());
-        double angError = Math.toDegrees(angleDiff(target.theta, current.theta));
+        opMode.telemetry.addLine(current.toString());
+        double angError = Angle.sub(target.theta, current.theta).angleInDegrees();
         opMode.telemetry.addData("angError", angError);
-        Pose out = new Pose(controllerX.calculate(current.x), controllerY.calculate(current.y), controllerTheta.calculateWithError(angError));
+        double outX = controllerX.calculate(current.x);
+        double outY = controllerY.calculate(current.y);
+        double outTheta = controllerTheta.calculateWithError(angError);
 
-        out = out.rot(current.theta);
-        out = new Pose(out.x / MAX_VEL, out.y / MAX_VEL, out.theta / MAX_ANG_VEL);
-        opMode.telemetry.addLine(out.toString());
+        double a = current.theta.angleInRadians();
+        double rotX = outX * Math.cos(a) - outY * Math.sin(a);
+        double rotY = outX * Math.sin(a) + outY * Math.cos(a);
+        outX /= MAX_VEL;
+        outY /= MAX_VEL;
+        outTheta /= MAX_ANG_VEL;
+        opMode.telemetry.addLine("outX: " + outX + System.lineSeparator() + "outY: " + outY + System.lineSeparator() + "outTheta: " + outTheta);
         opMode.telemetry.update();
 
         double voltageCompensation = 12 / getBatteryVoltage();
-        moveWheels(out.x, out.y, out.theta, getSpeedMultiplier() * voltageCompensation);
+        moveWheels(outX, outY, outTheta, getSpeedMultiplier() * voltageCompensation);
         tracker.update();
 
         return !isBusy(target, current);
-    }
-
-    /**
-     * Move to a certain (x, y) on the field.
-     * @param x x coordinate to move to. for now, must be in inches
-     * @param y y coordinate to move to. for now, must be in inches
-     */
-    public void moveTo(double x, double y) {
-        moveTo(new Pose(x, y));
-    }
-
-    /**
-     * Move to a certain (x, y, θ) on the field.
-     * @param x x coordinate to move to. for now, must be in inches.
-     * @param y y coordinate to move to. for now, must be in inches.
-     * @param theta angle to turn to. for now, must be in radians.
-     */
-    public void moveTo(double x, double y, double theta) {
-        moveTo(new Pose(x, y, theta));
     }
 
     private void setModes(DcMotor.RunMode mode) {
@@ -205,7 +195,7 @@ public class InchWorm {
         if (
                 Math.abs(target.x - current.x) <= 20 &&
                 Math.abs(target.y - current.y) <= 20 &&
-                Math.abs(Math.toDegrees(angleDiff(target.theta, current.theta))) <= 5
+                Math.abs(Angle.sub(target.theta, current.theta).angleInDegrees()) <= 5
         ) {
             loopsCorrect++;
         } else loopsCorrect = 0;
@@ -245,34 +235,6 @@ public class InchWorm {
 
     }
 
-    /**
-     * normalizes theta into [0, 2π)
-     * @param theta angle to normalize in radians
-     * @return theta normalized into [0, 2π)
-     */
-    private static double modAngle(double theta) {
-        // convert to degrees because mod 2pi doesn't work?
-        double angle = Math.toDegrees(theta);
-
-        angle += 360;
-        angle %= 360;
-
-        // convert back to radians when done
-        return Math.toRadians(angle);
-    }
-
-    /**
-     * Returns the real (smallest) difference between two angles.
-     * @param a first angle (in radians)
-     * @param b second angle (in radians)
-     * @return smallest difference between the two angles, within range [-π, π)
-     */
-    private static double angleDiff(double a, double b) {
-        double diff = a - b;
-        if (diff >= Math.PI) diff -= 2 * Math.PI;
-        if (diff < -Math.PI) diff += 2 * Math.PI;
-        return diff;
-    }
 
     /**
      * Get yaw from the IMU.
@@ -287,8 +249,8 @@ public class InchWorm {
      * Get yaw from the IMU in radians.
      * @return yaw angle from the IMU in radians.
      */
-    public double getYaw() {
-        return getYaw(AngleUnit.RADIANS);
+    public Angle getYaw() {
+        return Angle.radians(getYaw(AngleUnit.RADIANS));
     }
 
     private double getBatteryVoltage() {
@@ -322,14 +284,14 @@ public class InchWorm {
     public static class Pose {
         double x;
         public double y;
-        public double theta = 0;
+        public Angle theta = ZERO;
 
         public Pose(double X, double Y) {
             x = X;
             y = Y;
         }
 
-        public Pose(double X, double Y, double angle) {
+        public Pose(double X, double Y, Angle angle) {
             x = X;
             y = Y;
             theta = angle;
@@ -349,7 +311,7 @@ public class InchWorm {
          * @return A new pose with theta normalized into [0, 2π).
          */
         public Pose normalizeAngle() {
-            return new Pose(this.x, this.y, modAngle(this.theta));
+            return new Pose(this.x, this.y, Angle.modAngle(this.theta));
         }
 
         /**
@@ -357,9 +319,10 @@ public class InchWorm {
          * @param angle angle to rotate by
          * @return new pose that is rotated by the angle
          */
-        public Pose rot(double angle) {
-            double rotX = this.x * Math.cos(angle) - this.y * Math.sin(angle);
-            double rotY = this.x * Math.sin(angle) + this.y * Math.cos(angle);
+        public Pose rot(Angle angle) {
+            double a = angle.angleInRadians();
+            double rotX = this.x * Math.cos(a) - this.y * Math.sin(a);
+            double rotY = this.x * Math.sin(a) + this.y * Math.cos(a);
 
             return new Pose(rotX, rotY, this.theta);
         }
@@ -370,25 +333,17 @@ public class InchWorm {
          * @return A new pose that is the sum of `this` and `other`
          */
         public Pose add(Pose other) {
-            return new Pose(this.x + other.x, this.y + other.y, this.theta + other.theta);
+            return new Pose(this.x + other.x, this.y + other.y, Angle.add(this.theta, other.theta));
         }
 
         @NonNull
         public String toString() {
-            return "x: " + x + System.lineSeparator() + "y: " + y + System.lineSeparator() + "theta: " + theta;
-        }
-
-        /**
-         * Converts theta from radians to degrees.
-         * @return a pose with radians converted to degrees
-         */
-        public Pose toDegrees() {
-            return new Pose(this.x, this.y, Math.toDegrees(this.theta));
+            return "x: " + x + System.lineSeparator() + "y: " + y + System.lineSeparator() + "theta: " + theta.angleInDegrees();
         }
     }
 
     public class PositionTracker {
-        public Pose currentPos = new Pose(0, 0, 0);
+        public Pose currentPos = POSE_ZERO;
         private int lastFL = 0;
         private int lastFR = 0;
         private int lastBL = 0;
@@ -398,7 +353,7 @@ public class InchWorm {
         private int frOffset = 0;
         private int blOffset = 0;
         private int brOffset = 0;
-        private double yawOffset = 0;
+        private Angle yawOffset = ZERO;
 
         /**
          * Set this to the diameter of the robot, in inches
@@ -409,11 +364,11 @@ public class InchWorm {
 
         /**
          * Override the current pose estimate.
-         * @param pose Pose to relocalize to. x and y must be in inches, and theta must be in radians.
+         * @param pose Pose to relocalize to. x and y must be in inches.
          */
         public void setPoseEstimate(Pose pose) {
             pose = pose.toTicks().normalizeAngle();
-            double turn = (pose.theta * TRACKWIDTH) * TPI;
+            double turn = (pose.theta.angleInRadians() * TRACKWIDTH) * TPI;
 
             int currentFL = fl.getCurrentPosition();
             int currentFR = fr.getCurrentPosition();
@@ -435,7 +390,7 @@ public class InchWorm {
             frOffset = fr - currentFR;
             blOffset = bl - currentBL;
             brOffset = br - currentBR;
-            yawOffset = angleDiff(pose.theta, getYaw());
+            yawOffset = Angle.sub(pose.theta, getYaw());
 
             currentPos = pose;
         }
@@ -459,8 +414,8 @@ public class InchWorm {
             int newBL = bl.getCurrentPosition() + blOffset;
             int newBR = br.getCurrentPosition() + brOffset;
 
-            double newYaw = getYaw() + yawOffset;
-            double yawDiff = angleDiff(newYaw, currentPos.theta);
+            Angle newYaw = Angle.add(getYaw(), yawOffset);
+            Angle yawDiff = Angle.sub(newYaw, currentPos.theta);
 
             int flDiff = newFL - lastFL;
             int frDiff = newFR - lastFR;
@@ -470,11 +425,11 @@ public class InchWorm {
             double yDiff = ((flDiff + frDiff + blDiff + brDiff) / 4.0);
             double xDiff = ((blDiff + frDiff - flDiff - brDiff) / 4.0);
 
-            double expX = cosc(yawDiff);
-            double expY = sinc(yawDiff);
+            double expX = cosc(yawDiff.angleInRadians());
+            double expY = sinc(yawDiff.angleInRadians());
 
             Pose posDiff = new Pose(yDiff * expX + xDiff * expY, yDiff * expY - xDiff * expX, yawDiff);
-            posDiff = posDiff.rot(-currentPos.theta);
+            posDiff = posDiff.rot(currentPos.theta.neg());
 
             currentPos = currentPos.add(posDiff);
 

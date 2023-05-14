@@ -65,7 +65,7 @@ public class TurnPIDTuner extends LinearOpMode {
             lastDown = gamepad1.dpad_down;
 
 //            double current = inchWorm.getYaw(AngleUnit.DEGREES);
-            double current = Math.toDegrees(inchWorm.tracker.currentPos.theta);
+            double current = inchWorm.tracker.currentPos.theta.angleInDegrees();
             double out = controller.calculate(current);
             out /= MAX_ANG_VEL;
 
