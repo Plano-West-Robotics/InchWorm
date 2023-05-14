@@ -26,7 +26,7 @@ public class SpeedTuner extends LinearOpMode {
         double time = getRuntime() + 1;
         inchWorm.moveWheels(0, 1, 0, 1);
         while (getRuntime() < time) {
-            double y = inchWorm.tracker.currentPos.y;
+            double y = inchWorm.tracker.currentPos.y.distInTicks();
 
             double velo = (y - lastY) / timer.seconds();
             veloSum += velo;

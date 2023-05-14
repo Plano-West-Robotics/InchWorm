@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.inchworm.WormUtil;
 import org.firstinspires.ftc.teamcode.inchworm.InchWorm;
 import org.firstinspires.ftc.teamcode.inchworm.PIDController;
 import org.firstinspires.ftc.teamcode.inchworm.units.Angle;
+import org.firstinspires.ftc.teamcode.inchworm.units.Distance;
 
 @Autonomous(group="tune")
 public class TranslationalPIDTuner extends LinearOpMode {
@@ -42,19 +43,19 @@ public class TranslationalPIDTuner extends LinearOpMode {
 
         wormUtil.waitForStart();
 
-        InchWorm.Pose target = new InchWorm.Pose(0, 24, Angle.ZERO).toTicks();
-        controller.setTarget(target.y);
+        InchWorm.Pose target = new InchWorm.Pose(Distance.ZERO, Distance.tiles(1), Angle.ZERO);
+        controller.setTarget(target.y.distInTicks());
 
         while (opModeIsActive()) {
             if (gamepad1.left_bumper && lastLeftBumper != gamepad1.left_bumper) {
                 Kp -= scale;
-                controller.setParams(Kp, Ki, Kd, target.y);
+                controller.setParams(Kp, Ki, Kd, target.y.distInTicks());
                 controller.reset();
             }
 
             if (gamepad1.right_bumper && lastRightBumper != gamepad1.right_bumper) {
                 Kp += scale;
-                controller.setParams(Kp, Ki, Kd, target.y);
+                controller.setParams(Kp, Ki, Kd, target.y.distInTicks());
                 controller.reset();
             }
 
@@ -72,7 +73,7 @@ public class TranslationalPIDTuner extends LinearOpMode {
             lastDown = gamepad1.dpad_down;
 
             InchWorm.Pose current = inchWorm.tracker.currentPos;
-            double out = controller.calculate(current.y);
+            double out = controller.calculate(current.y.distInTicks());
             out /= MAX_VEL;
 
             if (gamepad1.x) {
@@ -82,11 +83,11 @@ public class TranslationalPIDTuner extends LinearOpMode {
 
             telemetry.addData("target", target.y);
             telemetry.addData("out", out);
-            telemetry.addData("error", String.format("%.2f", target.y - current.y));
+            telemetry.addData("error", String.format("%.2f", Distance.sub(target.y, current.y).distInTicks()));
             telemetry.addData("Kp", String.format("%.2f", Kp));
             telemetry.addData("Ki", String.format("%.2f", Ki));
             telemetry.addData("Kd", String.format("%.2f", Kd));
-            telemetry.addData("current", String.format("%.2f", current.y));
+            telemetry.addData("current", String.format("%.2f", current.y.distInTicks()));
             telemetry.addData("scale", scale);
             telemetry.update();
             inchWorm.moveWheels(0, out, 0, 1);

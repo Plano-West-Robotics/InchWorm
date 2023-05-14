@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.inchworm.units.Angle;
+import org.firstinspires.ftc.teamcode.inchworm.units.Distance;
 
 @Autonomous(group = "test")
 public class InchTest extends LinearOpMode {
@@ -16,11 +17,11 @@ public class InchTest extends LinearOpMode {
 
         wormUtil.waitForStart();
 
-        inchWorm.moveTo(new InchWorm.Pose(24, 0));
-        inchWorm.moveTo(new InchWorm.Pose(24, 24));
-        inchWorm.moveTo(new InchWorm.Pose(24, 0));
-        inchWorm.moveTo(new InchWorm.Pose(0, 0, Angle.degrees(90)));
+        inchWorm.moveTo(new InchWorm.Pose(Distance.tiles(1), Distance.ZERO));
+        inchWorm.moveTo(new InchWorm.Pose(Distance.tiles(1), Distance.tiles(1)));
+        inchWorm.moveTo(new InchWorm.Pose(Distance.tiles(1), Distance.ZERO));
+        inchWorm.moveTo(new InchWorm.Pose(Distance.ZERO, Distance.ZERO, Angle.degrees(90)));
 
-        inchWorm.moveTo(new InchWorm.Pose(0, 0, Angle.ZERO));
+        inchWorm.moveTo(new InchWorm.Pose(Distance.ZERO, Distance.ZERO, Angle.ZERO));
     }
 }
