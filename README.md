@@ -7,6 +7,8 @@ Then, it uses [PID controllers](https://www.youtube.com/watch?v=O_ZMqViNKBk) to 
 
 This repository functions as a quickstart for new FtcRobotController projects integrated with InchWorm, similar to the roadrunner quickstart.
 
+For tuning instructions, please read [TUNING.md](TUNING.md)
+
 For any questions, please reach out to Plano West Robotics or create an issue on this repository.
 
 [^1]: Control award at TX-North Semi-Regional South, Innovation Award at FIRST In Texas UIL State 6A Championship
