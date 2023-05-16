@@ -7,8 +7,11 @@ public class Distance {
     // val in inches (🇺🇸 lol)
     private final double val;
 
+    // conversion factors
     private static final double INCHES_PER_FOOT = 12;
     private static final double INCHES_PER_TILE = 23.625;
+    private static final double CM_PER_INCH = 2.54;
+
     /**
      * Encoder ticks per motor revolution for your drive motors. You can find this information online.
      */
@@ -16,11 +19,11 @@ public class Distance {
     /**
      * Diameter of your mecanum wheels in inches.
      */
-    public static final double WHEEL_DIAMETER_INCHES = 3;
+    public static final Distance WHEEL_DIAMETER = Distance.inches(3);
     /**
      * Encoder ticks per inch rotated
      */
-    public static final double TPI = TICKS_PER_REV / (WHEEL_DIAMETER_INCHES * Math.PI);
+    public static final double TPI = TICKS_PER_REV / (WHEEL_DIAMETER.distInInches() * Math.PI);
 
     private Distance(double v) {
         val = v;
@@ -63,6 +66,15 @@ public class Distance {
     }
 
     /**
+     * Create a distance from centimeters
+     * @param val Distance in centimeters
+     * @return Distance object containing the distance.
+     */
+    public static Distance centimeters(double val) {
+        return new Distance(val / CM_PER_INCH);
+    }
+
+    /**
      * Returns the distance in inches
      * @return distance in inches
      */
@@ -93,6 +105,14 @@ public class Distance {
      */
     public double distInTicks() {
         return val * TPI;
+    }
+
+    /**
+     * Returns the distance in centimeters
+     * @return Distance in centimeters
+     */
+    public double distInCentimeters() {
+        return val * CM_PER_INCH;
     }
 
     /**
