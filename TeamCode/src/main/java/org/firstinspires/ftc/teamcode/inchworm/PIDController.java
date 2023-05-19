@@ -91,6 +91,20 @@ public class PIDController {
     }
 
     /**
+     * This method is for setting parameters to new values.
+     * May be helpful to call {@link #reset()} after this.
+     * @see #reset()
+     * @param Kp     Proportional gain
+     * @param Ki     Integral gain
+     * @param Kd     Derivative gain
+     */
+    public void setParams(double Kp, double Ki, double Kd) {
+        this.Kp = Kp;
+        this.Ki = Ki;
+        this.Kd = Kd;
+    }
+
+    /**
      * Sets the new target.
      * @param target New target position.
      */
