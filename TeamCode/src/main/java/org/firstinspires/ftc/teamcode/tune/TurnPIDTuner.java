@@ -49,6 +49,7 @@ public class TurnPIDTuner extends LinearOpMode {
             telemetry.addData("out", out);
             telemetry.addData("error", String.format("%.2f", TARGET - current));
             telemetry.addData("current", String.format("%.2f", current));
+            telemetry.addData("target", String.format("%.2f", TARGET));
             telemetry.update();
 
             inchWorm.moveWheels(0, 0, out, 0.5);

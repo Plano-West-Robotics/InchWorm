@@ -25,7 +25,6 @@ public class TranslationalPIDTuner extends LinearOpMode {
     /*
      * This class should be used to tune translational PID for InchWorm.
      */
-    @SuppressLint("DefaultLocale")
     @Override
     public void runOpMode() {
         WormUtil wormUtil = new WormUtil(this, InchWorm.GLOBAL_ORIENTATION);
@@ -54,6 +53,7 @@ public class TranslationalPIDTuner extends LinearOpMode {
             telemetry.addData("out", out);
             telemetry.addData("error", String.format("%.2f", TARGET - current.y.distInTicks()));
             telemetry.addData("current", String.format("%.2f", current.y.distInTicks()));
+            telemetry.addData("target", String.format("%.2f", TARGET));
             telemetry.update();
             inchWorm.moveWheels(0, out, 0, 1);
             inchWorm.tracker.update();
