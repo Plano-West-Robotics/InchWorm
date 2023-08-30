@@ -56,8 +56,8 @@ public class Angle {
         angle += 360;
         angle %= 360;
 
-        // convert back to radians when done
-        return Angle.radians(angle);
+        // convert back when done
+        return Angle.degrees(angle);
     }
 
     /**
